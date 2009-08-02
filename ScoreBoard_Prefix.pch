@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'ScoreBoard' target in the 'ScoreBoard' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+    #import <UIKit/UIKit.h>
+#endif
