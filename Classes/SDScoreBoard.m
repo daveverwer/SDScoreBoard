@@ -63,6 +63,8 @@ NSString* const scoreBoardAnimationKeyRemoveWhenDone = @"removeWhenDone";
 
 #pragma mark Property accessors
 - (void)setValue:(NSInteger)value {
+  NSAssert(value >= 0, @"SDScoreBoard only supports positive scores");
+
   // Format the new value as a zero padded string of length maxDigits
   NSString *format = [NSString stringWithFormat:@"%%0%dd", maxDigits];
   NSString *valueStr = [NSString stringWithFormat:format, value];
