@@ -31,11 +31,13 @@
 }
 
 - (IBAction)scoreUp:(id)sender {
-  [[self scoreBoard] setValue:++score];
+  score = MIN(score++, USHRT_MAX);
+  [[self scoreBoard] setValue:score];
 }
 
 - (IBAction)scoreDown:(id)sender {
-  [[self scoreBoard] setValue:--score];
+  score = MAX(score--, 0);
+  [[self scoreBoard] setValue:score];
 }
 
 - (IBAction)scoreRandom:(id)sender {
