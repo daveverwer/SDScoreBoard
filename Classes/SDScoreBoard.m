@@ -13,8 +13,8 @@ NSString* const scoreBoardAnimationKeyRemoveWhenDone = @"removeWhenDone";
 
 @interface SDScoreBoard (Private)
 - (CALayer*)layerForDigit:(NSInteger)value atPosition:(NSInteger)position;
-- (CAAnimation*)animationInForLayer:(CALayer*)layer;
-- (CAAnimation*)animationOutForLayer:(CALayer*)layer;
+- (CAAnimation*)animationInForLayer:(CALayer*)layer fromTop:(BOOL)fromTop;
+- (CAAnimation*)animationOutForLayer:(CALayer*)layer fromTop:(BOOL)fromTop;
 @end
 
 @implementation SDScoreBoard
@@ -81,18 +81,25 @@ NSString* const scoreBoardAnimationKeyRemoveWhenDone = @"removeWhenDone";
     // Check which digits have changed and animate the new digit in
     for (NSInteger i=0; i<maxDigits; i++) {
       if (digits[i] != oldDigits[i]) {
+        // Should the digit come in from the top or the bottom?
+        // This includes a hack so that it appears to make the
+        // digits wrap correctly when switching from 0 to 9.
+        BOOL fromTop = digits[i] > oldDigits[i];
+        if ((digits[i] == '0' && oldDigits[i] == '9') ||
+            (digits[i] == '9' && oldDigits[i] == '0')) fromTop = !fromTop;
+        
         // Create a new layer for the changed digit
         CALayer *layer = [self layerForDigit:digits[i]-(NSInteger)'0' atPosition:i];
         
         // Animate out the old layer at this position
         CALayer *oldLayer = [digitLayers objectAtIndex:i];
-        [oldLayer addAnimation:[self animationOutForLayer:oldLayer] forKey:@"move-out"];
+        [oldLayer addAnimation:[self animationOutForLayer:oldLayer fromTop:fromTop] forKey:@"move-out"];
         
         // Replace the reference to the old layer with the new layer
         [digitLayers replaceObjectAtIndex:i withObject:layer];
         
         // Animate in the new layer
-        [layer addAnimation:[self animationInForLayer:layer] forKey:@"move-in"];
+        [layer addAnimation:[self animationInForLayer:layer fromTop:fromTop] forKey:@"move-in"];
         
         // Add the layer into the hierarchy, removal of the old layer is done
         // in animationDidStop:finished: after it's animation is done
@@ -117,21 +124,23 @@ NSString* const scoreBoardAnimationKeyRemoveWhenDone = @"removeWhenDone";
   return layer;
 }
 
-- (CAAnimation*)animationInForLayer:(CALayer*)layer {
+- (CAAnimation*)animationInForLayer:(CALayer*)layer fromTop:(BOOL)fromTop {
   // Create the animation to slide the number in
   CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position.y"];
   [anim setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
-  [anim setFromValue:[NSNumber numberWithFloat:-[layer bounds].size.height]];
+  CGFloat animationOrigin = fromTop ? -[layer bounds].size.height : [layer bounds].size.height;
+  [anim setFromValue:[NSNumber numberWithFloat:animationOrigin]];
   [anim setDuration:scoreBoardAnimationDuration];
   [anim setFillMode:kCAFillModeBackwards];
   return anim;
 }
 
-- (CAAnimation*)animationOutForLayer:(CALayer*)layer {
+- (CAAnimation*)animationOutForLayer:(CALayer*)layer fromTop:(BOOL)fromTop {
   // Create the animation to slide the number out
   CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"position.y"];
   [anim setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];
-  [anim setToValue:[NSNumber numberWithFloat:[layer bounds].size.height]];
+  CGFloat animationDest = fromTop ? [layer bounds].size.height : -[layer bounds].size.height;
+  [anim setToValue:[NSNumber numberWithFloat:animationDest]];
   [anim setDuration:scoreBoardAnimationDuration];
   [anim setValue:layer forKey:scoreBoardAnimationKeyRemoveWhenDone];
   [anim setDelegate:self];
