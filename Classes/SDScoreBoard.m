@@ -8,7 +8,7 @@
 
 #import "SDScoreBoard.h"
 
-NSInteger const scoreBoardAnimationDuration = 1.2; // seconds
+NSInteger const scoreBoardAnimationDuration = 0.8; // seconds
 NSString* const scoreBoardAnimationKeyRemoveWhenDone = @"removeWhenDone";
 
 @interface SDScoreBoard (Private)
