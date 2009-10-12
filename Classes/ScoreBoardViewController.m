@@ -1,28 +1,35 @@
-//
-//  ScoreBoardViewController.m
-//  ScoreBoard
-//
-//  Created by Dave Verwer on 02/08/2009.
-//  Copyright Shiny Development Ltd. 2009. All rights reserved.
-//
-
 #import "ScoreBoardViewController.h"
+
+@interface ScoreBoardViewController ()
+@property (nonatomic, retain) SDScoreBoard *scoreBoard;
+@property (nonatomic, assign) NSInteger score;
+@end
 
 @implementation ScoreBoardViewController
 
 @synthesize scoreBoard = _scoreBoard;
+@synthesize score = _score;
+
+- (void)dealloc {
+  [_scoreBoard release];
+  [super dealloc];
+}
 
 - (void)loadView {
   [super loadView];
-
-  score = 0;
   
-  SDScoreBoard *layer = [[SDScoreBoard alloc] initWithInitialValue:score];
+  // Initialise the random number generator
+  srandom((NSInteger)[NSDate timeIntervalSinceReferenceDate]);
+
+  // Initialise the score
+  [self setScore:0];
+  
+  // Create the score board and add it in to the layer hierarchy
+  SDScoreBoard *layer = [[SDScoreBoard alloc] initWithInitialValue:[self score]];
   CGSize viewSize = [[self view] bounds].size;
   [layer setPosition:CGPointMake(viewSize.width / 2, viewSize.height / 3)];
   [self setScoreBoard:layer];
   [layer release]; layer = nil;
-
   [[[self view] layer] addSublayer:[self scoreBoard]];
 }
 
@@ -31,18 +38,18 @@
 }
 
 - (IBAction)scoreUp:(id)sender {
-  score = MIN(score++, USHRT_MAX);
-  [[self scoreBoard] setValue:score];
+  [self setScore:MIN([self score]+1, USHRT_MAX)];
+  [[self scoreBoard] setValue:[self score]];
 }
 
 - (IBAction)scoreDown:(id)sender {
-  score = MAX(score--, 0);
-  [[self scoreBoard] setValue:score];
+  [self setScore:MAX([self score]-1, 0)];
+  [[self scoreBoard] setValue:[self score]];
 }
 
 - (IBAction)scoreRandom:(id)sender {
-  score = random() % USHRT_MAX;
-  [[self scoreBoard] setValue:score];
+  [self setScore:random() % USHRT_MAX];
+  [[self scoreBoard] setValue:[self score]];
 }
 
 @end

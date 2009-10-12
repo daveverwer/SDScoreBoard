@@ -1,18 +1,10 @@
-//
-//  ScoreBoardAppDelegate.h
-//  ScoreBoard
-//
-//  Created by Dave Verwer on 02/08/2009.
-//  Copyright Shiny Development Ltd. 2009. All rights reserved.
-//
-
-#import <UIKit/UIKit.h>
+#import "ScoreBoardViewController.h"
 
 @class ScoreBoardViewController;
 
 @interface ScoreBoardAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    ScoreBoardViewController *viewController;
+  UIWindow *_window;
+  ScoreBoardViewController *_viewController;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
